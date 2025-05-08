@@ -10,6 +10,8 @@ const server = http.createServer((req, res) => {
 
   if (pathname === "/ping") {
     res.end(JSON.stringify({ message: "pong" }));
+  } else if (pathname === "/time") {
+    res.end(JSON.stringify({ time: new Date().toISOString() }));
   } else {
     res.end(JSON.stringify({ message: "Hello from Node.js!" }));
   }
