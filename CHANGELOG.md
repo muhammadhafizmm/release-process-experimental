@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.0 (2025-05-08)
+
+### ✨ Feature
+- feat: minor change on qa scripts (#5) [(6b9d6a2)](https://github.com/muhammadhafizmm/release-process-experimental/commit/6b9d6a2)
+    - delete origin when checkout
+
+
 ## v1.1.0 (2025-05-08)
 
 ### ✨ Feature
