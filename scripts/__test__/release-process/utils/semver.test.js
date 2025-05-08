@@ -3,7 +3,7 @@ const {
   parseVersion,
   isSemverGreater,
   detectSemverType,
-} = require("../../utils/semver");
+} = require("../../../release-process/utils/semver");
 
 describe("parseVersion", () => {
   it("should parse version string to array of numbers", () => {
@@ -42,23 +42,38 @@ describe("isSemverGreater", () => {
 describe("detectSemverType", () => {
   it("should detect major version from BREAKING CHANGE", () => {
     expect(
-      detectSemverType(["fix: typo", "BREAKING CHANGE: changes core"])
+      detectSemverType([
+        { subject: "fix: typo", isBreaking: false },
+        { subject: "chore: change internal", isBreaking: true },
+      ])
     ).toBe("major");
   });
 
   it("should detect major version from '!:'", () => {
-    expect(detectSemverType(["feat!: overhaul structure"])).toBe("major");
+    expect(
+      detectSemverType([
+        { subject: "feat!: overhaul structure", isBreaking: true },
+      ])
+    ).toBe("major");
   });
 
   it("should detect minor version from feat:", () => {
-    expect(detectSemverType(["feat: new button"])).toBe("minor");
+    expect(
+      detectSemverType([{ subject: "feat: new button", isBreaking: false }])
+    ).toBe("minor");
   });
 
   it("should detect patch version from fix:", () => {
-    expect(detectSemverType(["fix: button alignment"])).toBe("patch");
+    expect(
+      detectSemverType([
+        { subject: "fix: button alignment", isBreaking: false },
+      ])
+    ).toBe("patch");
   });
 
   it("should default to patch for unknown commit messages", () => {
-    expect(detectSemverType(["docs: update README"])).toBe("patch");
+    expect(
+      detectSemverType([{ subject: "docs: update README", isBreaking: false }])
+    ).toBe("patch");
   });
 });

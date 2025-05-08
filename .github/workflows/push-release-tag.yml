@@ -47,15 +47,15 @@ jobs:
         id: release_version
         run: |
           if [[ "${{ github.event.pull_request.base.ref }}" == "release" ]]; then
-            VERSION=$(node ./scripts/get-next-release.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep VERSION | cut -d'=' -f2)
+            VERSION=$(node ./scripts/release-process/get-next-release.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep VERSION | cut -d'=' -f2)
           else
-            VERSION=$(node ./scripts/get-next-prerelease.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep BETA_VERSION | cut -d'=' -f2)
+            VERSION=$(node ./scripts/release-process/get-next-prerelease.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep BETA_VERSION | cut -d'=' -f2)
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Update version in package.json & generate CHANGELOG.md
         run: |
-          node ./scripts/update-version.js ${{ steps.release_version.outputs.version }} ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} ${{ github.event.pull_request.base.ref }}
+          node ./scripts/release-process/update-version.js ${{ steps.release_version.outputs.version }} ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} ${{ github.event.pull_request.base.ref }}
       - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
