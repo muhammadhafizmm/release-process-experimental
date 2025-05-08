@@ -54,4 +54,5 @@ git push origin rc
 echo "🚀 Pushing tag $VERSION to origin..."
 git push origin "$VERSION"
 
+git checkout main
 echo "✅ Done! Commit $COMMIT_SHA cherry-picked to origin/rc and tagged as $VERSION."
