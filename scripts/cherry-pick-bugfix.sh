@@ -41,7 +41,8 @@ git checkout rc
 git pull origin rc
 
 echo "🍒 Cherry-picking commit $COMMIT_SHA..."
-git cherry-pick $COMMIT_SHA
+git cherry-pick --no-commit $COMMIT_SHA
+git commit -m "chore: cherry-pick $COMMIT_SHA into staging"
 
 VERSION=$(node ./scripts/get-next-prerelease.js origin/rc origin/main | grep BETA_VERSION | cut -d'=' -f2)
 echo "🔖 Creating tag $VERSION..."
