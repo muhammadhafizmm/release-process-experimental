@@ -1,0 +1,13 @@
+{
+  "name": "release-process-experimental",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./scr/index.js",
+    "test": "jest --watchAll --detectOpenHandles --forceExit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
+}

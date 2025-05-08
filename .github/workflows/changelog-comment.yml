@@ -1,0 +1,58 @@
+name: PR Changelog Staging & Production
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - rc
+      - release
+
+jobs:
+  generate-release-comment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Git
+        run: git fetch --tags --all
+
+      - name: Set base and head branch for diff
+        id: branch-info
+        run: |
+          echo "base=origin/${{ github.event.pull_request.base.ref }}" >> "$GITHUB_OUTPUT"
+          echo "head=origin/${{ github.event.pull_request.head.ref }}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract prerelease version (Node.js)
+        id: release_version
+        run: |
+          if [[ "${{ github.event.pull_request.base.ref }}" == "release" ]]; then
+            VERSION=$(node ./scripts/get-next-release.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep VERSION | cut -d'=' -f2)
+          else
+            VERSION=$(node ./scripts/get-next-prerelease.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep BETA_VERSION | cut -d'=' -f2)
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog (Node.js)
+        run: |
+          node ./scripts/generate-changelog.js "${{ steps.release_version.outputs.version }}" pr-comment.md ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }}
+
+      - name: Add comment to PR
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: pr-comment.md
+          allow-repeats: false

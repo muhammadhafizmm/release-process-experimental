@@ -1,0 +1,67 @@
+name: Push Release Tag Staging & Production
+
+on:
+  pull_request:
+    branches:
+      - rc
+      - release
+    types: [closed]
+
+concurrency:
+  group: staging-build
+  cancel-in-progress: true
+
+jobs:
+  create-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Git
+        run: git fetch --tags --all
+
+      - name: Set base and head branch for diff
+        id: branch-info
+        run: |
+          echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract prerelease version (Node.js)
+        id: release_version
+        run: |
+          if [[ "${{ github.event.pull_request.base.ref }}" == "release" ]]; then
+            VERSION=$(node ./scripts/get-next-release.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep VERSION | cut -d'=' -f2)
+          else
+            VERSION=$(node ./scripts/get-next-prerelease.js ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} | grep BETA_VERSION | cut -d'=' -f2)
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Update version in package.json & generate CHANGELOG.md
+        run: |
+          node ./scripts/update-version.js ${{ steps.release_version.outputs.version }} ${{ steps.branch-info.outputs.base }} ${{ steps.branch-info.outputs.head }} ${{ github.event.pull_request.base.ref }}
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.event.pull_request.base.ref }}" == "release" ]]; then
+            gh release create "${{ steps.release_version.outputs.version }}" --title "${{ steps.release_version.outputs.version }}" --notes-file CHANGELOG_temp.md
+          else
+            gh release create "${{ steps.release_version.outputs.version }}" --title "${{ steps.release_version.outputs.version }}" --notes-file CHANGELOG_temp.md --prerelease
+          fi
