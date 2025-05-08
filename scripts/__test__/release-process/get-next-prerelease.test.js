@@ -1,10 +1,12 @@
 const { execSync } = require("child_process");
 jest.mock("child_process");
 
-jest.mock("../get-next-release", () => jest.fn(() => "v1.2.0"));
-const getNextStableVersion = require("../get-next-release");
+jest.mock("../../release-process/get-next-release", () =>
+  jest.fn(() => "v1.2.0")
+);
+const getNextStableVersion = require("../../release-process/get-next-release");
 
-const getNextBetaVersion = require("../get-next-prerelease");
+const getNextBetaVersion = require("../../release-process/get-next-prerelease");
 
 describe("getNextBetaVersion", () => {
   beforeEach(() => {
