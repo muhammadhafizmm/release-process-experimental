@@ -1,4 +1,7 @@
-const { classifyCommit, buildMarkdown } = require("../generate-changelog");
+const {
+  classifyCommit,
+  buildMarkdown,
+} = require("../../release-process/generate-changelog");
 
 describe("classifyCommit", () => {
   it("detects breaking change by '!:'", () => {
