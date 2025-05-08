@@ -36,9 +36,9 @@ fi
 echo "📦 Fetching latest from origin..."
 git fetch origin
 
-echo "🌿 Checking out to origin/main..."
-git checkout main
-git pull origin main
+echo "🌿 Checking out to origin/rc..."
+git checkout rc
+git pull origin rc
 
 echo "🍒 Cherry-picking commit $COMMIT_SHA..."
 git cherry-pick $COMMIT_SHA
