@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.0 (2025-05-08)
+
+### 🚨 Breaking Changes
+- feat!: refactor repository structure (#14) [(5008e7e)](https://github.com/muhammadhafizmm/release-process-experimental/commit/5008e7e)
+
+
 ## v1.3.0 (2025-05-08)
 
 ### ✨ Feature
